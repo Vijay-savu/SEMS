@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillVerse | Academy Login</title>
+    <meta name="description" content="Login to SkillVerse. Start your journey as a student, instructor or administrator.">
+    <link rel="stylesheet" href="index.css">
+    <style>
+        /* Extra styles for role-specific interactions */
+        .instructor-badge { background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 0.25rem 0.5rem; border-radius: 0.5rem; font-size: 0.7rem; font-weight: 700; margin-right: 1rem; }
+        .module-list { list-style: none; margin-top: 1rem; }
+        .module-item { padding: 1rem; margin-bottom: 0.5rem; border-radius: 0.75rem; background: var(--bg-base); border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .progress-container { height: 8px; background: var(--border-color); border-radius: 4px; overflow: hidden; margin: 10px 0; }
+        .progress-bar { height: 100%; background: var(--primary-500); width: 0%; transition: width 0.5s ease; }
+    </style>
+</head>
+<body id="body">
+
+    <!-- Landing Login Section -->
+    <section id="landing-login" class="glass" style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--bg-base), #e2e8f0); position: relative; z-index: 5000;">
+        <div class="modal glass shadow-lg" style="width: 100%; max-width: 450px; padding: 3rem; background: var(--bg-surface);">
+            <div style="text-align: center; margin-bottom: 2.5rem;">
+                <div class="logo" style="font-size: 2.5rem; margin-bottom: 1rem;">SkillVerse</div>
+                <h2 style="font-size: 1.25rem; font-weight: 700;">Welcome Back</h2>
+                <p style="color: var(--text-sub); font-size: 0.9rem;">Sign in to your account</p>
+            </div>
+            
+            <div class="form-group">
+                <label>Login As</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem;">
+                    <button class="btn btn-ghost role-btn active" id="btn-role-student" onclick="app.setRole('student')">Student</button>
+                    <button class="btn btn-ghost role-btn" id="btn-role-instructor" onclick="app.setRole('instructor')">Instructor</button>
+                    <button class="btn btn-ghost role-btn" id="btn-role-admin" onclick="app.setRole('admin')">Admin</button>
+                </div>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-form-box">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" class="form-input" placeholder="name@example.in" id="login-email" value="arjun@skillverse.in">
+                </div>
+                <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 1rem; margin-top: 1rem;" onclick="app.login()">
+                    Sign In
+                </button>
+                <p style="text-align: center; margin-top: 1.5rem; color: var(--text-sub); font-size: 0.9rem;">
+                    New to SkillVerse? <a href="#" onclick="app.showRegister(true)" style="color: var(--primary-500); font-weight: 700;">Create Account</a>
+                </p>
+            </div>
+
+            <!-- Register Form -->
+            <div id="register-form-box" class="hidden">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" class="form-input" placeholder="e.g. Rahul Sharma" id="reg-name">
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" class="form-input" placeholder="rahul@example.in" id="reg-email">
+                </div>
+                <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 1rem; margin-top: 1rem;" onclick="app.register()">
+                    Create Account
+                </button>
+                <p style="text-align: center; margin-top: 1.5rem; color: var(--text-sub); font-size: 0.9rem;">
+                    Already have an account? <a href="#" onclick="app.showRegister(false)" style="color: var(--primary-500); font-weight: 700;">Sign In</a>
+                </p>
+            </div>
+            <div id="theme-toggle-login" style="position: absolute; top: 1rem; right: 1rem; cursor: pointer; padding: 0.5rem;" onclick="app.toggleTheme()">
+                🌙
+            </div>
+        </div>
+    </section>
+
+    <!-- App Shell (Navigation) -->
+    <nav class="glass hidden" id="main-nav">
+        <div class="container nav-content">
+            <div class="logo">SkillVerse</div>
+            <div class="nav-actions">
+                <div class="theme-toggle glass" id="theme-toggle-nav" title="Toggle Theme" onclick="app.toggleTheme()">
+                    <svg id="theme-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </div>
+                
+                <div id="user-info">
+                    <span id="user-role-badge" class="admin-badge">Admin</span>
+                    <span id="user-name" style="font-weight: 600; margin-right: 1rem;"></span>
+                    <button class="btn btn-ghost" onclick="app.logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Containers -->
+    <main id="main-content" class="container hidden">
+        
+        <!-- Marketplace Section (For Students/Instructors to Browse) -->
+        <section id="marketplace-section" class="hidden">
+            <div class="section-header">
+                <h1>Explore Marketplace</h1>
+                <p style="color: var(--text-sub);">Discover courses and register to start learning.</p>
+            </div>
+            <div class="course-grid" id="course-grid">
+                <!-- Courses injected here -->
+            </div>
+        </section>
+
+        <!-- Admin Dashboard Section -->
+        <section id="admin-dashboard-section" class="hidden">
+            <div class="section-header">
+                <h1>Admin Command Center</h1>
+            </div>
+            <div class="glass" style="padding: 2.5rem; border-radius: 1.5rem; margin-bottom: 2rem;">
+                <h3 style="margin-bottom: 1.5rem;">Create New Course</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <input type="text" id="adm-course-title" class="form-input" placeholder="Course Title">
+                    <input type="text" id="adm-course-cat" class="form-input" placeholder="Category (e.g. Design)">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <input type="number" id="adm-course-price" class="form-input" placeholder="Price ($)">
+                    <button class="btn btn-primary" onclick="app.adminCreateCourse()">+ Launch Course</button>
+                </div>
+            </div>
+            <div class="glass" style="padding: 2.5rem; border-radius: 1.5rem;">
+                <h3 style="margin-bottom: 1.5rem;">Course Management</h3>
+                <div id="admin-course-list">
+                    <!-- Manage/Delete buttons will be added here per course -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Instructor Dashboard Section -->
+        <section id="instructor-dashboard-section" class="hidden">
+            <div class="section-header">
+                <h1>Instructor Dashboard</h1>
+                <p style="color: var(--text-sub);">Manage your teaching journey and students.</p>
+            </div>
+            <div class="course-grid" id="instructor-course-grid">
+                <!-- Instructor's courses with student count and start/end buttons -->
+            </div>
+        </section>
+
+        <!-- Student Dashboard (My Learning Journey) -->
+        <section id="student-dashboard-section" class="hidden">
+            <div class="section-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1>My Learning Journey</h1>
+                    <p style="color: var(--text-sub);">Progress tracker and active modules.</p>
+                </div>
+                <button class="btn btn-primary" onclick="app.showMarketplace()">+ Enroll in More</button>
+            </div>
+            <div class="course-grid" id="student-course-grid">
+                <!-- Purchased courses go here -->
+            </div>
+        </section>
+
+        <!-- Learning View (Module Player) -->
+        <section id="learning-view" class="hidden">
+            <button class="btn btn-ghost" onclick="app.switchView('student')" style="margin-bottom: 1rem;">← Back to My Journey</button>
+            <div class="glass" style="padding: 2.5rem; border-radius: 1.5rem;">
+                <h1 id="learning-title" style="margin-bottom: 0.5rem;">Module 1</h1>
+                <p id="learning-instructor" style="color: var(--text-sub); margin-bottom: 2rem;"></p>
+                <div style="height: 400px; background: #000; border-radius: 1rem; display: flex; align-items: center; justify-content: center; color: white; margin-bottom: 2rem;">
+                    <div style="text-align: center;">
+                        <span style="font-size: 4rem;">▶</span>
+                        <p>Video Lesson Player Simulation</p>
+                    </div>
+                </div>
+                <div id="learning-content">
+                    <!-- Modules list injected here -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Payment Modal (Simulation) -->
+    <div id="payment-modal" class="modal-overlay">
+        <div class="modal glass shadow-lg">
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem;">Confirm Payment</h2>
+                <p id="payment-course-title" style="color: var(--primary-500); font-weight: 700;"></p>
+            </div>
+            <div class="form-group">
+                <label>Card Number</label>
+                <input type="text" class="form-input" placeholder="4242 4242 4242 4242" value="4444 5555 6666 7777">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label>Expiry</label>
+                    <input type="text" class="form-input" value="12/28">
+                </div>
+                <div class="form-group">
+                    <label>CVV</label>
+                    <input type="text" class="form-input" value="***">
+                </div>
+            </div>
+            <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 1rem;" onclick="app.processPayment()">Pay & Enroll</button>
+            <button class="btn btn-ghost" style="width: 100%; margin-top: 0.5rem;" onclick="app.closePayment()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Instructor Students Modal -->
+    <div id="students-modal" class="modal-overlay">
+        <div class="modal glass shadow-lg" style="max-width: 500px;">
+            <h2 style="margin-bottom: 1.5rem;">Registered Students</h2>
+            <div id="students-list" style="max-height: 300px; overflow-y: auto;">
+                <!-- List of students will be injected here -->
+            </div>
+            <button class="btn btn-ghost" style="width: 100%; margin-top: 2rem;" onclick="document.getElementById('students-modal').style.display='none'">Close</button>
+        </div>
+    </div>
+
+    <!-- Certificate Modal -->
+    <div id="certificate-modal" class="modal-overlay">
+        <div class="modal glass shadow-lg" style="max-width: 600px; text-align: center; border: 4px solid var(--primary-500); padding: 4rem;">
+            <div style="margin-bottom: 2rem;">
+                <span style="font-size: 4rem;">🎓</span>
+                <h1 style="font-size: 2.5rem; margin-top: 1rem;">Certificate of Completion</h1>
+            </div>
+            <p style="font-size: 1.1rem; color: var(--text-sub);">This is to certify that</p>
+            <h2 id="cert-user-name" style="font-size: 2rem; margin: 1rem 0; color: var(--primary-500);">Arjun Kumar</h2>
+            <p style="font-size: 1.1rem; color: var(--text-sub);">has successfully completed the course</p>
+            <h3 id="cert-course-title" style="font-size: 1.5rem; margin: 1rem 0;">Advanced React Mastery</h3>
+            <div style="margin-top: 3rem; display: flex; justify-content: space-around; border-top: 1px solid var(--border-color); padding-top: 2rem;">
+                <div style="text-align: center;">
+                    <p style="font-weight: 700;">SkillVerse Academy</p>
+                    <p style="font-size: 0.8rem; color: var(--text-sub);">Accredited Institution</p>
+                </div>
+            </div>
+            <button class="btn btn-primary" style="margin-top: 2rem;" onclick="document.getElementById('certificate-modal').style.display='none'">Download PDF</button>
+        </div>
+    </div>
+
+    <!-- Notification system -->
+    <div id="notification-container" style="position: fixed; bottom: 2rem; right: 2rem; z-index: 6000;"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
