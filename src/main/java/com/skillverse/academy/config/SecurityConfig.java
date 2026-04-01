@@ -19,14 +19,12 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/portal", "/login", "/css/**", "/h2-console/**", "/error").permitAll()
+                        .requestMatchers("/", "/portal", "/login", "/participant-login", "/participant-register", "/participant-logout", "/css/**", "/error").permitAll()
                         .requestMatchers("/events/**", "/my-registrations").permitAll()
                         .requestMatchers("/api/events/**").permitAll()
                         .requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**"))
-                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")

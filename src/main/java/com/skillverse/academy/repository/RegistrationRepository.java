@@ -2,18 +2,13 @@ package com.skillverse.academy.repository;
 
 import com.skillverse.academy.model.Registration;
 import java.util.List;
-import org.springframework.data.jpa.repository.EntityGraph;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface RegistrationRepository extends JpaRepository<Registration, Long> {
+public interface RegistrationRepository extends MongoRepository<Registration, String> {
 
-    @EntityGraph(attributePaths = "event")
     List<Registration> findByAttendeeEmailIgnoreCaseOrderByRegisteredAtDesc(String attendeeEmail);
 
-    @EntityGraph(attributePaths = "event")
-    List<Registration> findByEventIdOrderByRegisteredAtDesc(Long eventId);
+    List<Registration> findByEventIdOrderByRegisteredAtDesc(String eventId);
 
-    @Query("select coalesce(sum(r.ticketsBooked), 0) from Registration r")
-    long getTotalBookedSeats();
+    void deleteByEventId(String eventId);
 }

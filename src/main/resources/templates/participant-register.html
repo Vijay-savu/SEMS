@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${currentParticipantType.name() == 'INTERNAL' ? 'Internal Registration' : 'External Registration'} + ' | SmartCampus Events'">Participant Registration</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="access-body">
+<header class="access-topbar">
+    <div class="access-topbar-inner">
+        <div class="brand-block">
+            <div class="brand-logo">SC</div>
+            <div>
+                <strong>SmartCampus Events</strong>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="access-shell access-shell-split">
+    <section class="access-hero-panel">
+        <div class="eyebrow">Participant Registration</div>
+        <h1 class="access-hero-title">
+            <span th:text="${currentParticipantType.name() == 'INTERNAL' ? 'Internal' : 'External'}">Internal</span><br>
+            Participant Registration
+        </h1>
+        <p class="access-hero-copy" th:text="${currentParticipantType.name() == 'INTERNAL'
+                ? 'Create an internal participant account using email and password, then login to continue.'
+                : 'Create an external participant account using email and password, then login to continue.'}">
+            Create your participant account to continue.
+        </p>
+        <div class="access-hero-pills">
+            <span class="access-hero-pill">Register First</span>
+            <span class="access-hero-pill" th:text="${currentParticipantType.name() == 'INTERNAL' ? 'Campus Access' : 'Guest Access'}">Campus Access</span>
+        </div>
+    </section>
+
+    <section class="access-card access-card-dark">
+        <div class="access-tabs access-tabs-dark access-tabs-three">
+            <a class="access-tab access-tab-dark" th:href="@{/login}">Back to Portal</a>
+            <a class="access-tab access-tab-dark" th:href="@{/participant-login(participantType=${currentParticipantType})}">Login</a>
+            <div class="access-tab access-tab-dark active" th:text="${currentParticipantType.name() == 'INTERNAL' ? 'Internal Register' : 'External Register'}">Internal Register</div>
+        </div>
+
+        <div class="card-head access-head access-head-left">
+            <h1 class="access-title access-title-dark" th:text="${currentParticipantType.name() == 'INTERNAL' ? 'Internal Participant Registration' : 'External Participant Registration'}">Participant Registration</h1>
+            <p class="subtle-text access-subtle-dark">Create your email and password first. After that, login to continue.</p>
+        </div>
+
+        <div class="access-inline-note">
+            Already registered?
+            <a th:href="@{/participant-login(participantType=${currentParticipantType})}">Login here</a>
+        </div>
+
+        <form th:action="@{/participant-register}" th:object="${participantRegisterForm}" method="post" class="stack-form">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <input type="hidden" th:field="*{participantType}">
+
+            <div>
+                <label for="email">Email</label>
+                <input id="email" type="email" th:field="*{email}" placeholder="Enter your email">
+                <div class="error-box" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+            </div>
+
+            <div>
+                <label for="password">Password</label>
+                <input id="password" type="password" th:field="*{password}" placeholder="Create password">
+                <div class="error-box" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+            </div>
+
+            <div>
+                <label for="confirmPassword">Confirm Password</label>
+                <input id="confirmPassword" type="password" th:field="*{confirmPassword}" placeholder="Confirm password">
+                <div class="error-box" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></div>
+            </div>
+
+            <button class="btn btn-gradient access-login-btn" type="submit">Register</button>
+        </form>
+    </section>
+</main>
+</body>
+</html>

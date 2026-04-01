@@ -1,17 +1,6 @@
 package com.skillverse.academy.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OrderBy;
-import jakarta.persistence.Table;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Min;
@@ -21,74 +10,61 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
-@Table(name = "events")
+@Document(collection = "events")
 public class Event {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
     @NotBlank
-    @Column(nullable = false)
     private String name;
 
     @NotBlank
-    @Column(nullable = false)
     private String department;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private EventCategory category;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private EventType type;
 
     @NotBlank
-    @Column(nullable = false)
     private String venue;
 
     @NotBlank
-    @Column(nullable = false, length = 1200)
     private String description;
 
     @NotNull
     @Future
-    @Column(nullable = false)
     private LocalDateTime eventDateTime;
 
     @NotNull
     @DecimalMin("0.0")
-    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal ticketPrice;
 
     @NotNull
     @Min(1)
-    @Column(nullable = false)
     private Integer capacity;
 
     @NotNull
     @Min(0)
-    @Column(nullable = false)
     private Integer availableSeats;
 
-    @Column(nullable = false)
     private boolean published = true;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("registeredAt DESC")
+    @Transient
     private List<Registration> registrations = new ArrayList<>();
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

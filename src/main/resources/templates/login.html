@@ -3,37 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login | SmartCampus Events</title>
+    <title>Access Portal | SmartCampus Events</title>
     <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
-<body class="dark-body">
-<main class="shell auth-shell">
-    <section class="auth-copy">
-        <div class="eyebrow">Admin Access</div>
-        <h1 class="compact-title">Manage college events from one place.</h1>
-        <p class="lead-text">Login to create events, review registrations, and manage published listings.</p>
-        <a class="text-link" th:href="@{/}">Back to event portal</a>
+<body class="access-body">
+<header class="access-topbar">
+    <div class="access-topbar-inner">
+        <div class="brand-block">
+            <div class="brand-logo">SC</div>
+            <div>
+                <strong>SmartCampus Events</strong>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="access-shell access-shell-split">
+    <section class="access-hero-panel">
+        <div class="eyebrow">College Event Portal</div>
+        <h1 class="access-hero-title">
+            Access the<br>
+            <span>Campus Event</span><br>
+            Management Portal
+        </h1>
+        <p class="access-hero-copy">
+            This portal provides a structured interface for participant registration and administrative access.
+        </p>
+        <div class="access-hero-pills">
+            <span class="access-hero-pill">Internal Registration</span>
+            <span class="access-hero-pill">External Registration</span>
+            <span class="access-hero-pill">Admin Access</span>
+        </div>
     </section>
 
-    <section class="surface-card auth-box">
-        <div class="card-head">
-            <h2>Admin Login</h2>
-            <p class="subtle-text">Use your admin credentials to continue.</p>
+    <section class="access-card access-card-dark">
+        <div class="access-tabs access-tabs-dark">
+            <a class="access-tab access-tab-dark active-link" th:href="@{/participant-register(participantType='INTERNAL')}">Internal Registration</a>
+            <a class="access-tab access-tab-dark active-link" th:href="@{/participant-register(participantType='EXTERNAL')}">External Registration</a>
+            <div class="access-tab access-tab-dark active">Admin Login</div>
+        </div>
+
+        <div class="card-head access-head access-head-left">
+            <h1 class="access-title access-title-dark">Student Registration and Admin Login</h1>
+            <p class="subtle-text access-subtle-dark">Choose participant type or continue to the admin panel.</p>
+        </div>
+
+        <div class="access-links">
+            <a class="access-option access-option-dark" th:href="@{/participant-register(participantType='INTERNAL')}">
+                <strong>Internal Participant</strong>
+                <span>Create your account first, then login and continue with event registration.</span>
+            </a>
+            <a class="access-option access-option-dark" th:href="@{/participant-register(participantType='EXTERNAL')}">
+                <strong>External Participant</strong>
+                <span>Create your account first, then login and continue with event registration.</span>
+            </a>
+        </div>
+
+        <div class="access-divider access-divider-dark">
+            <span>Admin Login</span>
         </div>
 
         <div class="alert" th:if="${param.logout}">You have been logged out.</div>
         <div class="error-box" th:if="${param.error}">Invalid username or password. Please try again.</div>
 
         <form th:action="@{/login}" method="post" class="stack-form">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <div>
-                <label for="username">Username</label>
-                <input id="username" name="username" type="text" placeholder="Enter username" autofocus>
+                <label for="username">Admin Email</label>
+                <input id="username" name="username" type="text" placeholder="Enter admin email" autofocus>
             </div>
             <div>
                 <label for="password">Password</label>
                 <input id="password" name="password" type="password" placeholder="Enter password">
             </div>
-            <button class="btn btn-gradient" type="submit">Login</button>
+            <button class="btn btn-gradient access-login-btn" type="submit">Login</button>
         </form>
     </section>
 </main>

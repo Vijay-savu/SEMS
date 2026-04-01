@@ -32,7 +32,7 @@ public class EventRestController {
     }
 
     @GetMapping("/events/{id}")
-    public Event eventDetails(@PathVariable Long id) {
+    public Event eventDetails(@PathVariable String id) {
         return eventService.getPublishedEvent(id);
     }
 

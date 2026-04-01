@@ -18,6 +18,8 @@
 
         <div class="header-actions">
             <a class="ghost-link" th:href="@{/}">All Events</a>
+            <span class="ghost-link" th:if="${participantLoggedIn}" th:text="${participantSessionEmail}">participant@example.com</span>
+            <a class="ghost-link" th:if="${participantLoggedIn}" th:href="@{/participant-logout}">Logout</a>
             <a class="btn btn-soft" th:href="@{/login}">Admin Login</a>
         </div>
     </div>

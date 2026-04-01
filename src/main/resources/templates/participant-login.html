@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${currentParticipantType.name() == 'INTERNAL' ? 'Internal Login' : 'External Login'} + ' | SmartCampus Events'">Participant Login</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="access-body">
+<header class="access-topbar">
+    <div class="access-topbar-inner">
+        <div class="brand-block">
+            <div class="brand-logo">SC</div>
+            <div>
+                <strong>SmartCampus Events</strong>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="access-shell access-shell-split">
+    <section class="access-hero-panel">
+        <div class="eyebrow">Participant Login</div>
+        <h1 class="access-hero-title">
+            <span th:text="${currentParticipantType.name() == 'INTERNAL' ? 'Internal' : 'External'}">Internal</span><br>
+            Participant Login
+        </h1>
+        <p class="access-hero-copy" th:text="${currentParticipantType.name() == 'INTERNAL'
+                ? 'Use the registered internal participant credentials to continue to the event registration area.'
+                : 'Use the registered external participant credentials to continue to the event registration area.'}">
+            Use the registered participant credentials to continue.
+        </p>
+        <div class="access-hero-pills">
+            <span class="access-hero-pill">Email Login</span>
+            <span class="access-hero-pill" th:text="${currentParticipantType.name() == 'INTERNAL' ? 'Department Events' : 'External Entry'}">Department Events</span>
+        </div>
+    </section>
+
+    <section class="access-card access-card-dark">
+        <div class="access-tabs access-tabs-dark access-tabs-three">
+            <a class="access-tab access-tab-dark" th:href="@{/login}">Back to Portal</a>
+            <a class="access-tab access-tab-dark" th:href="@{/participant-register(participantType=${currentParticipantType})}">Register</a>
+            <div class="access-tab access-tab-dark active" th:text="${currentParticipantType.name() == 'INTERNAL' ? 'Internal Login' : 'External Login'}">Internal Login</div>
+        </div>
+
+        <div class="card-head access-head access-head-left">
+            <h1 class="access-title access-title-dark" th:text="${currentParticipantType.name() == 'INTERNAL' ? 'Internal Participant Login' : 'External Participant Login'}">Participant Login</h1>
+            <p class="subtle-text access-subtle-dark">Enter the registered email and password to continue.</p>
+        </div>
+
+        <div class="alert" th:if="${participantRegisterSuccess}" th:text="${participantRegisterSuccess}">Registration completed. Please login to continue.</div>
+        <div class="error-box" th:if="${#fields.hasGlobalErrors()}" th:each="err : ${#fields.globalErrors()}" th:text="${err}">Invalid email or password.</div>
+
+        <form th:action="@{/participant-login}" th:object="${participantLoginForm}" method="post" class="stack-form">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <input type="hidden" th:field="*{participantType}">
+
+            <div>
+                <label for="email">Email</label>
+                <input id="email" type="email" th:field="*{email}" placeholder="Enter your email">
+                <div class="error-box" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+            </div>
+
+            <div>
+                <label for="password">Password</label>
+                <input id="password" type="password" th:field="*{password}" placeholder="Enter your password">
+                <div class="error-box" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+            </div>
+
+            <button class="btn btn-gradient access-login-btn" type="submit">Continue</button>
+        </form>
+    </section>
+</main>
+</body>
+</html>

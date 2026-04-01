@@ -11,11 +11,12 @@ import com.skillverse.academy.model.ParticipantType;
 import com.skillverse.academy.model.Registration;
 import com.skillverse.academy.repository.EventRepository;
 import com.skillverse.academy.repository.RegistrationRepository;
-import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -72,7 +73,7 @@ public class EventService {
                 .toList();
     }
 
-    public Event getPublishedEvent(Long id) {
+    public Event getPublishedEvent(String id) {
         Event event = getEvent(id);
         if (!event.isPublished()) {
             throw new IllegalArgumentException("This event is not open for public booking.");
@@ -80,7 +81,7 @@ public class EventService {
         return event;
     }
 
-    public Event getEvent(Long id) {
+    public Event getEvent(String id) {
         return eventRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Event not found."));
     }
@@ -100,7 +101,6 @@ public class EventService {
         return form;
     }
 
-    @Transactional
     public Event createEvent(EventForm form) {
         Event event = new Event();
         applyEventForm(form, event);
@@ -108,8 +108,7 @@ public class EventService {
         return eventRepository.save(event);
     }
 
-    @Transactional
-    public Event updateEvent(Long id, EventForm form) {
+    public Event updateEvent(String id, EventForm form) {
         Event event = getEvent(id);
         int bookedSeats = event.getCapacity() - event.getAvailableSeats();
         if (form.getCapacity() < bookedSeats) {
@@ -121,19 +120,19 @@ public class EventService {
         return eventRepository.save(event);
     }
 
-    @Transactional
-    public void deleteEvent(Long id) {
+    public void deleteEvent(String id) {
+        registrationRepository.deleteByEventId(id);
         eventRepository.delete(getEvent(id));
     }
 
-    @Transactional
-    public Registration registerForEvent(Long eventId, RegistrationForm form) {
+    public Registration registerForEvent(String eventId, RegistrationForm form) {
         Event event = getPublishedEvent(eventId);
         if (event.getAvailableSeats() < form.getTicketsBooked()) {
             throw new IllegalArgumentException("Not enough tickets are available for this event.");
         }
 
         Registration registration = new Registration();
+        registration.setEventId(event.getId());
         registration.setEvent(event);
         registration.setParticipantType(form.getParticipantType());
         registration.setAttendeeName(form.getAttendeeName());
@@ -145,6 +144,7 @@ public class EventService {
                 ? safeValue(form.getAttendeeCollegeName())
                 : "");
         registration.setTicketsBooked(form.getTicketsBooked());
+        registration.setRegisteredAt(LocalDateTime.now());
 
         event.setAvailableSeats(event.getAvailableSeats() - form.getTicketsBooked());
         eventRepository.save(event);
@@ -152,24 +152,31 @@ public class EventService {
     }
 
     public List<Registration> getRegistrationsForEmail(String email) {
-        return registrationRepository.findByAttendeeEmailIgnoreCaseOrderByRegisteredAtDesc(email);
+        return attachEvents(registrationRepository.findByAttendeeEmailIgnoreCaseOrderByRegisteredAtDesc(email));
     }
 
-    public List<Registration> getRegistrationsForEvent(Long eventId) {
-        return registrationRepository.findByEventIdOrderByRegisteredAtDesc(eventId);
+    public List<Registration> getRegistrationsForEvent(String eventId) {
+        return attachEvents(registrationRepository.findByEventIdOrderByRegisteredAtDesc(eventId));
     }
 
     public DashboardStats getDashboardStats() {
+        long totalBookedSeats = registrationRepository.findAll().stream()
+                .mapToLong(registration -> registration.getTicketsBooked() == null ? 0 : registration.getTicketsBooked())
+                .sum();
         return new DashboardStats(
                 eventRepository.count(),
                 eventRepository.countByPublishedTrue(),
                 registrationRepository.count(),
-                registrationRepository.getTotalBookedSeats()
+                totalBookedSeats
         );
     }
 
     public long getDepartmentCount() {
-        return eventRepository.countDistinctDepartments();
+        return eventRepository.findAll().stream()
+                .map(Event::getDepartment)
+                .filter(department -> department != null && !department.isBlank())
+                .distinct()
+                .count();
     }
 
     private void applyEventForm(EventForm form, Event event) {
@@ -187,5 +194,19 @@ public class EventService {
 
     private String safeValue(String value) {
         return value == null ? "" : value.trim();
+    }
+
+    private List<Registration> attachEvents(List<Registration> registrations) {
+        if (registrations.isEmpty()) {
+            return registrations;
+        }
+
+        Map<String, Event> eventsById = new HashMap<>();
+        for (Event event : eventRepository.findAll()) {
+            eventsById.put(event.getId(), event);
+        }
+
+        registrations.forEach(registration -> registration.setEvent(eventsById.get(registration.getEventId())));
+        return registrations;
     }
 }

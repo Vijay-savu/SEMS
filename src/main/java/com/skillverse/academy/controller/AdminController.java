@@ -68,7 +68,7 @@ public class AdminController {
     }
 
     @GetMapping("/admin/events/{id}/edit")
-    public String editEventPage(@PathVariable Long id, Model model) {
+    public String editEventPage(@PathVariable String id, Model model) {
         model.addAttribute("eventForm", eventService.toForm(eventService.getEvent(id)));
         model.addAttribute("pageTitle", "Edit Event");
         model.addAttribute("formAction", "/admin/events/" + id);
@@ -77,7 +77,7 @@ public class AdminController {
 
     @PostMapping("/admin/events/{id}")
     public String updateEvent(
-            @PathVariable Long id,
+            @PathVariable String id,
             @Valid @ModelAttribute("eventForm") EventForm eventForm,
             BindingResult bindingResult,
             Model model,
@@ -95,14 +95,14 @@ public class AdminController {
     }
 
     @PostMapping("/admin/events/{id}/delete")
-    public String deleteEvent(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    public String deleteEvent(@PathVariable String id, RedirectAttributes redirectAttributes) {
         eventService.deleteEvent(id);
         redirectAttributes.addFlashAttribute("successMessage", "Event deleted successfully.");
         return "redirect:/admin";
     }
 
     @GetMapping("/admin/events/{id}/registrations")
-    public String viewRegistrations(@PathVariable Long id, Model model) {
+    public String viewRegistrations(@PathVariable String id, Model model) {
         model.addAttribute("event", eventService.getEvent(id));
         model.addAttribute("registrations", eventService.getRegistrationsForEvent(id));
         return "admin/registrations";
