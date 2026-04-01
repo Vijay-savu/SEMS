@@ -3,116 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campus Event Portal</title>
+    <title>SmartCampus Events</title>
     <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
-<body class="portal-body">
+<body class="dark-body">
 <header class="site-header">
-    <div class="shell shell-header">
-        <div class="brand-mark">
-            <div class="brand-badge">SC</div>
-            <div class="brand-copy">
+    <div class="shell header-row">
+        <div class="brand-block">
+            <div class="brand-logo">SC</div>
+            <div>
                 <strong>SmartCampus Events</strong>
             </div>
         </div>
 
         <div class="header-actions">
-            <nav class="nav-switch">
-                <a class="nav-tab active" th:href="@{/portal}">All Events</a>
-                <a class="nav-tab" th:href="@{/my-registrations}">My Registrations</a>
-            </nav>
-            <form th:action="@{/logout}" method="post">
-                <button class="btn btn-ghost" type="submit">Logout</button>
-            </form>
+            <a class="ghost-link" th:href="@{/my-registrations}">My Registrations</a>
+            <a class="btn btn-soft" th:href="@{/login}">Admin Login</a>
         </div>
     </div>
 </header>
 
-<main class="shell portal-shell">
-    <section class="portal-hero">
+<main class="shell public-shell">
+    <section class="hero-grid">
         <div class="hero-copy">
             <div class="eyebrow">College Event Website</div>
-            <h1>Browse your college events by department, club, tech fest, and campus-wide activities.</h1>
-            <p class="subtext">
-                This signed-in portal is the new student landing area. It groups events the way a real college website
-                usually presents them, so users can find the right event faster after login.
-            </p>
+            <h1 class="compact-title">Browse college events and register with ease.</h1>
+            <p class="lead-text">Explore department, club, tech fest, and campus-wide events from one simple portal.</p>
         </div>
 
-        <form class="filter-card" method="get" th:action="@{/portal}">
-            <div class="filter-title">
+        <form class="surface-card filter-panel" method="get" th:action="@{/}">
+            <div class="card-head">
                 <h2>Find Events</h2>
-                <p class="subtext">Filter by host unit, section, or event type.</p>
+                <p class="subtle-text">Filter by host unit, section, or event type.</p>
             </div>
 
-            <div>
-                <label for="department">Department / Club / Host Unit</label>
-                <input id="department" name="department" list="host-unit-list"
-                       placeholder="Computer Science Department, Robotics Club..."
-                       th:value="${selectedDepartment}">
-                <datalist id="host-unit-list">
-                    <option th:each="hostUnit : ${hostUnits}" th:value="${hostUnit}"></option>
-                </datalist>
-            </div>
+            <div class="stack-form">
+                <div>
+                    <label for="department">Department / Club / Host Unit</label>
+                    <input id="department" name="department" list="host-unit-list"
+                           placeholder="Computer Science Department, Robotics Club..."
+                           th:value="${selectedDepartment}">
+                    <datalist id="host-unit-list">
+                        <option th:each="hostUnit : ${hostUnits}" th:value="${hostUnit}"></option>
+                    </datalist>
+                </div>
 
-            <div>
-                <label for="category">Section</label>
-                <select id="category" name="category">
-                    <option value="">All sections</option>
-                    <option th:each="eventCategory : ${eventCategories}" th:value="${eventCategory}"
-                            th:text="${eventCategory.displayName}"
-                            th:selected="${selectedCategory == eventCategory}"></option>
-                </select>
-            </div>
+                <div>
+                    <label for="category">Section</label>
+                    <select id="category" name="category">
+                        <option value="">All sections</option>
+                        <option th:each="eventCategory : ${eventCategories}" th:value="${eventCategory}"
+                                th:text="${eventCategory.displayName}"
+                                th:selected="${selectedCategory == eventCategory}"></option>
+                    </select>
+                </div>
 
-            <div>
-                <label for="type">Event Type</label>
-                <select id="type" name="type">
-                    <option value="">All event types</option>
-                    <option th:each="eventType : ${eventTypes}" th:value="${eventType}" th:text="${eventType}"
-                            th:selected="${selectedType == eventType}"></option>
-                </select>
-            </div>
+                <div>
+                    <label for="type">Event Type</label>
+                    <select id="type" name="type">
+                        <option value="">All event types</option>
+                        <option th:each="eventType : ${eventTypes}" th:value="${eventType}" th:text="${eventType}"
+                                th:selected="${selectedType == eventType}"></option>
+                    </select>
+                </div>
 
-            <button class="btn btn-gradient" type="submit">Apply Filters</button>
+                <button class="btn btn-gradient" type="submit">Apply Filters</button>
+            </div>
         </form>
     </section>
 
-    <section class="dashboard-head">
+    <div class="section-head compact-head">
         <div>
-            <h2>All Events</h2>
-            <p class="subtext">Browse and register for upcoming campus events.</p>
+            <h2>Events</h2>
+            <p class="subtle-text">Choose an event and continue with registration.</p>
         </div>
-    </section>
+    </div>
 
     <div class="empty dark-empty" th:if="${#lists.isEmpty(sections)}">No upcoming events matched the current filter.</div>
 
-    <section class="event-section-stack" th:if="${!#lists.isEmpty(sections)}">
-        <section class="event-section" th:each="section : ${sections}">
-            <div class="section-copy">
-                <div class="section-kicker" th:text="${section.title}">Department Events</div>
-                <p class="subtext" th:text="${section.description}">Section description</p>
+    <section class="section-stack" th:if="${!#lists.isEmpty(sections)}">
+        <section th:each="section : ${sections}">
+            <div class="section-head compact-head">
+                <div>
+                    <div class="eyebrow" th:text="${section.title}">Department Events</div>
+                    <p class="subtle-text" th:text="${section.description}">Section description</p>
+                </div>
             </div>
 
             <div class="event-grid">
-                <article class="event-card" th:each="event : ${section.events}">
-                    <div class="event-chip-row">
-                        <span class="event-chip" th:text="${event.type}">WORKSHOP</span>
-                        <span class="event-chip event-chip-soft" th:text="${event.category.displayName}">Section</span>
+                <article class="surface-card event-card" th:each="event : ${section.events}">
+                    <div class="chip-row">
+                        <span class="chip chip-primary" th:text="${event.type}">WORKSHOP</span>
+                        <span class="chip" th:text="${event.category.displayName}">Section</span>
                     </div>
 
-                    <div class="event-main">
+                    <div class="event-content">
                         <h3 th:text="${event.name}">Event Name</h3>
-                        <div class="event-meta">
+                        <p class="subtle-text event-host" th:text="${event.department}">Host Unit</p>
+                        <p class="event-description" th:text="${event.description}">Description</p>
+                        <div class="meta-list compact-meta">
                             <span th:text="${#temporals.format(event.eventDateTime, 'dd MMM yyyy')}">Date</span>
                             <span th:text="${event.venue}">Venue</span>
+                            <span th:text="'Seats: ' + ${event.availableSeats}">Seats</span>
                         </div>
-                        <div class="event-host" th:text="${event.department}">Host Unit</div>
-                        <p class="subtext" th:text="${event.description}">Description</p>
                     </div>
 
-                    <div class="event-footer">
-                        <div class="capacity-pill" th:text="'Max: ' + ${event.capacity}">Max: 100</div>
+                    <div class="event-actions">
                         <a class="btn btn-gradient" th:href="@{|/events/${event.id}|}">Register</a>
                     </div>
                 </article>

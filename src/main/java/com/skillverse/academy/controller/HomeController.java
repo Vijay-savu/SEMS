@@ -4,14 +4,14 @@ import com.skillverse.academy.dto.RegistrationForm;
 import com.skillverse.academy.model.Event;
 import com.skillverse.academy.model.EventCategory;
 import com.skillverse.academy.model.EventType;
+import com.skillverse.academy.model.ParticipantType;
 import com.skillverse.academy.service.EventService;
 import jakarta.validation.Valid;
 import java.nio.charset.StandardCharsets;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,36 +39,36 @@ public class HomeController {
         return EventCategory.values();
     }
 
+    @ModelAttribute("participantTypes")
+    ParticipantType[] participantTypes() {
+        return ParticipantType.values();
+    }
+
     @GetMapping("/")
-    public String root(Authentication authentication) {
-        if (isAuthenticated(authentication)) {
-            return "redirect:" + resolveHome(authentication);
-        }
-        return "redirect:/login";
-    }
-
-    @GetMapping("/login")
-    public String login(Authentication authentication) {
-        if (isAuthenticated(authentication)) {
-            return "redirect:" + resolveHome(authentication);
-        }
-        return "login";
-    }
-
-    @GetMapping("/portal")
-    public String home(
+    public String root(
             @RequestParam(required = false) String department,
             @RequestParam(required = false) EventType type,
             @RequestParam(required = false) EventCategory category,
             Model model
     ) {
-        model.addAttribute("sections", eventService.getPortalSections(department, type, category));
-        model.addAttribute("featuredEvents", eventService.getUpcomingEvents(department, type, category).stream().limit(3).toList());
-        model.addAttribute("hostUnits", eventService.getHostUnits());
-        model.addAttribute("selectedDepartment", department == null ? "" : department);
-        model.addAttribute("selectedType", type);
-        model.addAttribute("selectedCategory", category);
+        populatePortalModel(department, type, category, model);
         return "index";
+    }
+
+    @GetMapping("/portal")
+    public String portal(
+            @RequestParam(required = false) String department,
+            @RequestParam(required = false) EventType type,
+            @RequestParam(required = false) EventCategory category,
+            Model model
+    ) {
+        populatePortalModel(department, type, category, model);
+        return "index";
+    }
+
+    @GetMapping("/login")
+    public String login() {
+        return "login";
     }
 
     @GetMapping("/events/{id}")
@@ -88,6 +88,8 @@ public class HomeController {
             RedirectAttributes redirectAttributes
     ) {
         Event event = eventService.getPublishedEvent(id);
+        validateParticipantFields(registrationForm, bindingResult);
+
         if (bindingResult.hasErrors()) {
             model.addAttribute("event", event);
             return "event-detail";
@@ -108,15 +110,39 @@ public class HomeController {
         return "my-registrations";
     }
 
-    private boolean isAuthenticated(Authentication authentication) {
-        return authentication != null
-                && authentication.isAuthenticated()
-                && !(authentication instanceof AnonymousAuthenticationToken);
+    private void populatePortalModel(String department, EventType type, EventCategory category, Model model) {
+        model.addAttribute("sections", eventService.getPortalSections(department, type, category));
+        model.addAttribute("hostUnits", eventService.getHostUnits());
+        model.addAttribute("selectedDepartment", department == null ? "" : department);
+        model.addAttribute("selectedType", type);
+        model.addAttribute("selectedCategory", category);
     }
 
-    private String resolveHome(Authentication authentication) {
-        boolean isAdmin = authentication.getAuthorities().stream()
-                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
-        return isAdmin ? "/admin" : "/portal";
+    private void validateParticipantFields(RegistrationForm registrationForm, BindingResult bindingResult) {
+        if (registrationForm.getParticipantType() == ParticipantType.INTERNAL
+                && (registrationForm.getAttendeeDepartment() == null || registrationForm.getAttendeeDepartment().isBlank())) {
+            bindingResult.addError(new FieldError(
+                    "registrationForm",
+                    "attendeeDepartment",
+                    registrationForm.getAttendeeDepartment(),
+                    false,
+                    null,
+                    null,
+                    "Department is required for internal participants."
+            ));
+        }
+
+        if (registrationForm.getParticipantType() == ParticipantType.EXTERNAL
+                && (registrationForm.getAttendeeCollegeName() == null || registrationForm.getAttendeeCollegeName().isBlank())) {
+            bindingResult.addError(new FieldError(
+                    "registrationForm",
+                    "attendeeCollegeName",
+                    registrationForm.getAttendeeCollegeName(),
+                    false,
+                    null,
+                    null,
+                    "College name is required for external participants."
+            ));
+        }
     }
 }

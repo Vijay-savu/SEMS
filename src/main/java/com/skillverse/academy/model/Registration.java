@@ -3,6 +3,8 @@ package com.skillverse.academy.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -35,9 +37,16 @@ public class Registration {
     @Column(nullable = false)
     private String attendeeEmail;
 
-    @NotBlank
+    @NotNull
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String attendeeDepartment;
+    private ParticipantType participantType;
+
+    @Column(nullable = false)
+    private String attendeeDepartment = "";
+
+    @Column(nullable = false)
+    private String attendeeCollegeName = "";
 
     @NotNull
     @Min(1)
@@ -82,12 +91,28 @@ public class Registration {
         this.attendeeEmail = attendeeEmail;
     }
 
+    public ParticipantType getParticipantType() {
+        return participantType;
+    }
+
+    public void setParticipantType(ParticipantType participantType) {
+        this.participantType = participantType;
+    }
+
     public String getAttendeeDepartment() {
         return attendeeDepartment;
     }
 
     public void setAttendeeDepartment(String attendeeDepartment) {
         this.attendeeDepartment = attendeeDepartment;
+    }
+
+    public String getAttendeeCollegeName() {
+        return attendeeCollegeName;
+    }
+
+    public void setAttendeeCollegeName(String attendeeCollegeName) {
+        this.attendeeCollegeName = attendeeCollegeName;
     }
 
     public Integer getTicketsBooked() {

@@ -19,9 +19,9 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/css/**", "/h2-console/**", "/error").permitAll()
+                        .requestMatchers("/", "/portal", "/login", "/css/**", "/h2-console/**", "/error").permitAll()
+                        .requestMatchers("/events/**", "/my-registrations").permitAll()
                         .requestMatchers("/api/events/**").permitAll()
-                        .requestMatchers("/portal", "/events/**", "/my-registrations").hasAnyRole("ADMIN", "STUDENT")
                         .requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
@@ -30,11 +30,7 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
-                        .successHandler((request, response, authentication) -> {
-                            boolean isAdmin = authentication.getAuthorities().stream()
-                                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
-                            response.sendRedirect(isAdmin ? "/admin" : "/portal");
-                        })
+                        .defaultSuccessUrl("/admin", true)
                         .failureUrl("/login?error=true")
                         .permitAll()
                 )

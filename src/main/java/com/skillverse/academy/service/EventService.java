@@ -7,6 +7,7 @@ import com.skillverse.academy.dto.RegistrationForm;
 import com.skillverse.academy.model.Event;
 import com.skillverse.academy.model.EventCategory;
 import com.skillverse.academy.model.EventType;
+import com.skillverse.academy.model.ParticipantType;
 import com.skillverse.academy.model.Registration;
 import com.skillverse.academy.repository.EventRepository;
 import com.skillverse.academy.repository.RegistrationRepository;
@@ -134,9 +135,15 @@ public class EventService {
 
         Registration registration = new Registration();
         registration.setEvent(event);
+        registration.setParticipantType(form.getParticipantType());
         registration.setAttendeeName(form.getAttendeeName());
         registration.setAttendeeEmail(form.getAttendeeEmail());
-        registration.setAttendeeDepartment(form.getAttendeeDepartment());
+        registration.setAttendeeDepartment(form.getParticipantType() == ParticipantType.INTERNAL
+                ? safeValue(form.getAttendeeDepartment())
+                : "");
+        registration.setAttendeeCollegeName(form.getParticipantType() == ParticipantType.EXTERNAL
+                ? safeValue(form.getAttendeeCollegeName())
+                : "");
         registration.setTicketsBooked(form.getTicketsBooked());
 
         event.setAvailableSeats(event.getAvailableSeats() - form.getTicketsBooked());
@@ -176,5 +183,9 @@ public class EventService {
         event.setTicketPrice(form.getTicketPrice());
         event.setCapacity(form.getCapacity());
         event.setPublished(form.isPublished());
+    }
+
+    private String safeValue(String value) {
+        return value == null ? "" : value.trim();
     }
 }

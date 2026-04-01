@@ -3,57 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Event Registrations | Smart Campus</title>
+    <title>Event Registrations | SmartCampus Admin</title>
     <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
-<body>
-<div class="shell">
-    <header class="topbar">
-        <div class="brand">Smart<span>Campus</span> Admin</div>
-        <div class="nav-links">
-            <a class="pill" th:href="@{/admin}">Back to Dashboard</a>
+<body class="dark-body">
+<header class="site-header">
+    <div class="shell header-row">
+        <div class="brand-block">
+            <div class="brand-logo">SA</div>
+            <div>
+                <strong>SmartCampus Admin</strong>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <a class="ghost-link" th:href="@{/admin}">Back to Dashboard</a>
             <form th:action="@{/logout}" method="post">
-                <button class="btn btn-secondary" type="submit">Logout</button>
+                <button class="btn btn-soft" type="submit">Logout</button>
             </form>
         </div>
-    </header>
+    </div>
+</header>
 
-    <section class="panel">
-        <div class="eyebrow">Registration View</div>
-        <h1 style="font-size: 2.4rem; margin-top: 10px;" th:text="${event.name}">Event</h1>
-        <p class="subtext" th:text="${event.description}">Description</p>
-        <div class="meta-list">
-            <span class="meta-item" th:text="'Section: ' + ${event.category.displayName}">Section</span>
-            <span class="meta-item" th:text="'Host Unit: ' + ${event.department}">Host</span>
-            <span class="meta-item" th:text="'Date: ' + ${#temporals.format(event.eventDateTime, 'dd MMM yyyy, hh:mm a')}">Date</span>
-            <span class="meta-item" th:text="'Seats left: ' + ${event.availableSeats}">Seats</span>
+<main class="shell admin-shell">
+    <section class="surface-card admin-hero">
+        <div class="card-head">
+            <div class="eyebrow">Registration View</div>
+            <h1 class="compact-title small-title" th:text="${event.name}">Event</h1>
+            <p class="subtle-text" th:text="${event.description}">Description</p>
+        </div>
+
+        <div class="meta-list compact-meta">
+            <span th:text="'Section: ' + ${event.category.displayName}">Section</span>
+            <span th:text="'Host Unit: ' + ${event.department}">Host</span>
+            <span th:text="'Date: ' + ${#temporals.format(event.eventDateTime, 'dd MMM yyyy, hh:mm a')}">Date</span>
+            <span th:text="'Seats left: ' + ${event.availableSeats}">Seats</span>
         </div>
     </section>
 
-    <section class="table-card" style="margin-top: 24px;">
-        <div class="empty" th:if="${#lists.isEmpty(registrations)}">No one has registered for this event yet.</div>
+    <section class="surface-card table-card-admin">
+        <div class="empty dark-empty" th:if="${#lists.isEmpty(registrations)}">No one has registered for this event yet.</div>
 
-        <table class="table" th:if="${!#lists.isEmpty(registrations)}">
-            <thead>
-            <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Department</th>
-                <th>Tickets</th>
-                <th>Registered At</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="registration : ${registrations}">
-                <td th:text="${registration.attendeeName}">Name</td>
-                <td th:text="${registration.attendeeEmail}">Email</td>
-                <td th:text="${registration.attendeeDepartment}">Department</td>
-                <td th:text="${registration.ticketsBooked}">1</td>
-                <td th:text="${#temporals.format(registration.registeredAt, 'dd MMM yyyy, hh:mm a')}">Time</td>
-            </tr>
-            </tbody>
-        </table>
+        <div class="table-scroll" th:if="${!#lists.isEmpty(registrations)}">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Type</th>
+                    <th>Department / College</th>
+                    <th>Tickets</th>
+                    <th>Registered At</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="registration : ${registrations}">
+                    <td th:text="${registration.attendeeName}">Name</td>
+                    <td th:text="${registration.attendeeEmail}">Email</td>
+                    <td th:text="${registration.participantType}">INTERNAL</td>
+                    <td th:text="${registration.participantType.name() == 'INTERNAL' ? registration.attendeeDepartment : registration.attendeeCollegeName}">Detail</td>
+                    <td th:text="${registration.ticketsBooked}">1</td>
+                    <td th:text="${#temporals.format(registration.registeredAt, 'dd MMM yyyy, hh:mm a')}">Time</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </section>
-</div>
+</main>
 </body>
 </html>

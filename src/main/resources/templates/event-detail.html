@@ -3,96 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${event.name} + ' | Smart Campus'">Event Details</title>
+    <title th:text="${event.name} + ' | SmartCampus Events'">Event Details</title>
     <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
-<body class="portal-body">
+<body class="dark-body">
 <header class="site-header">
-    <div class="shell shell-header">
-        <div class="brand-mark">
-            <div class="brand-badge">SC</div>
-            <div class="brand-copy">
+    <div class="shell header-row">
+        <div class="brand-block">
+            <div class="brand-logo">SC</div>
+            <div>
                 <strong>SmartCampus Events</strong>
             </div>
         </div>
 
         <div class="header-actions">
-            <nav class="nav-switch">
-                <a class="nav-tab active" th:href="@{/portal}">All Events</a>
-                <a class="nav-tab" th:href="@{/my-registrations}">My Registrations</a>
-            </nav>
-            <form th:action="@{/logout}" method="post">
-                <button class="btn btn-ghost" type="submit">Logout</button>
-            </form>
+            <a class="ghost-link" th:href="@{/}">All Events</a>
+            <a class="ghost-link" th:href="@{/my-registrations}">My Registrations</a>
+            <a class="btn btn-soft" th:href="@{/login}">Admin Login</a>
         </div>
     </div>
 </header>
 
-<main class="shell portal-shell">
+<main class="shell public-shell">
     <section class="detail-layout">
-        <article class="detail-card">
-            <div class="event-chip-row">
-                <span class="event-chip" th:text="${event.type}">WORKSHOP</span>
-                <span class="event-chip event-chip-soft" th:text="${event.category.displayName}">Section</span>
+        <article class="surface-card detail-card">
+            <div class="chip-row">
+                <span class="chip chip-primary" th:text="${event.type}">WORKSHOP</span>
+                <span class="chip" th:text="${event.category.displayName}">Section</span>
             </div>
 
-            <h1 th:text="${event.name}">Event Name</h1>
-            <p class="subtext" th:text="${event.description}">Description</p>
+            <h1 class="compact-title detail-title" th:text="${event.name}">Event Name</h1>
+            <p class="lead-text detail-lead" th:text="${event.description}">Description</p>
 
-            <div class="detail-meta-grid">
-                <div class="detail-meta-box">
-                    <span class="muted">Date & time</span>
+            <div class="detail-grid">
+                <div class="detail-box">
+                    <span class="muted-label">Date & time</span>
                     <strong th:text="${#temporals.format(event.eventDateTime, 'dd MMM yyyy, hh:mm a')}">Date</strong>
                 </div>
-                <div class="detail-meta-box">
-                    <span class="muted">Host unit</span>
+                <div class="detail-box">
+                    <span class="muted-label">Host unit</span>
                     <strong th:text="${event.department}">Host</strong>
                 </div>
-                <div class="detail-meta-box">
-                    <span class="muted">Venue</span>
+                <div class="detail-box">
+                    <span class="muted-label">Venue</span>
                     <strong th:text="${event.venue}">Venue</strong>
                 </div>
-                <div class="detail-meta-box">
-                    <span class="muted">Ticket price</span>
+                <div class="detail-box">
+                    <span class="muted-label">Ticket price</span>
                     <strong th:text="'Rs. ' + ${event.ticketPrice}">Price</strong>
                 </div>
-                <div class="detail-meta-box">
-                    <span class="muted">Available seats</span>
+                <div class="detail-box">
+                    <span class="muted-label">Available seats</span>
                     <strong th:text="${event.availableSeats} + ' / ' + ${event.capacity}">Seats</strong>
                 </div>
             </div>
         </article>
 
-        <aside class="register-card">
-            <div class="eyebrow">Student Registration</div>
-            <h2>Reserve tickets now</h2>
-            <p class="subtext">Use the booking form below to confirm your spot.</p>
+        <aside class="surface-card register-card">
+            <div class="card-head">
+                <div class="eyebrow">Registration</div>
+                <h2>Register</h2>
+                <p class="subtle-text">Choose participant type and complete the form.</p>
+            </div>
 
-            <form th:action="@{|/events/${event.id}/register|}" th:object="${registrationForm}" method="post" class="auth-form">
+            <form th:action="@{|/events/${event.id}/register|}" th:object="${registrationForm}" method="post" class="stack-form">
+                <div class="toggle-row">
+                    <label class="toggle-pill">
+                        <input type="radio" th:field="*{participantType}" value="INTERNAL">
+                        <span>Internal</span>
+                    </label>
+                    <label class="toggle-pill">
+                        <input type="radio" th:field="*{participantType}" value="EXTERNAL">
+                        <span>External</span>
+                    </label>
+                </div>
+                <div class="error-box" th:if="${#fields.hasErrors('participantType')}" th:errors="*{participantType}"></div>
+
                 <div>
                     <label for="attendeeName">Full Name</label>
                     <input id="attendeeName" type="text" th:field="*{attendeeName}" placeholder="Enter your name">
                     <div class="error-box" th:if="${#fields.hasErrors('attendeeName')}" th:errors="*{attendeeName}"></div>
                 </div>
+
                 <div>
                     <label for="attendeeEmail">Email</label>
-                    <input id="attendeeEmail" type="email" th:field="*{attendeeEmail}" placeholder="student@example.edu">
+                    <input id="attendeeEmail" type="email" th:field="*{attendeeEmail}" placeholder="Enter your email">
                     <div class="error-box" th:if="${#fields.hasErrors('attendeeEmail')}" th:errors="*{attendeeEmail}"></div>
                 </div>
-                <div>
-                    <label for="attendeeDepartment">Your Department</label>
-                    <input id="attendeeDepartment" type="text" th:field="*{attendeeDepartment}" placeholder="Your department">
+
+                <div id="internal-fields">
+                    <label for="attendeeDepartment">Department</label>
+                    <input id="attendeeDepartment" type="text" th:field="*{attendeeDepartment}" placeholder="Enter department">
                     <div class="error-box" th:if="${#fields.hasErrors('attendeeDepartment')}" th:errors="*{attendeeDepartment}"></div>
                 </div>
+
+                <div id="external-fields">
+                    <label for="attendeeCollegeName">College Name</label>
+                    <input id="attendeeCollegeName" type="text" th:field="*{attendeeCollegeName}" placeholder="Enter college name">
+                    <div class="error-box" th:if="${#fields.hasErrors('attendeeCollegeName')}" th:errors="*{attendeeCollegeName}"></div>
+                </div>
+
                 <div>
                     <label for="ticketsBooked">Number of Tickets</label>
-                    <input id="ticketsBooked" type="number" min="1" max="6" th:field="*{ticketsBooked}">
+                    <select id="ticketsBooked" th:field="*{ticketsBooked}">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                    </select>
                     <div class="error-box" th:if="${#fields.hasErrors('ticketsBooked')}" th:errors="*{ticketsBooked}"></div>
                 </div>
-                <button class="btn btn-gradient auth-submit" type="submit">Register</button>
+
+                <button class="btn btn-gradient" type="submit">Register</button>
             </form>
         </aside>
     </section>
 </main>
+
+<script>
+    (() => {
+        const radios = document.querySelectorAll('input[name="participantType"]');
+        const internalFields = document.getElementById('internal-fields');
+        const externalFields = document.getElementById('external-fields');
+
+        const sync = () => {
+            const selected = document.querySelector('input[name="participantType"]:checked');
+            const type = selected ? selected.value : 'INTERNAL';
+            internalFields.style.display = type === 'INTERNAL' ? 'block' : 'none';
+            externalFields.style.display = type === 'EXTERNAL' ? 'block' : 'none';
+        };
+
+        radios.forEach(radio => radio.addEventListener('change', sync));
+        sync();
+    })();
+</script>
 </body>
 </html>
