@@ -1,17 +1,40 @@
 package com.skillverse.academy.config;
 
+import com.skillverse.academy.model.Account;
+import com.skillverse.academy.model.AccountRole;
 import com.skillverse.academy.model.Event;
 import com.skillverse.academy.model.EventCategory;
 import com.skillverse.academy.model.EventType;
+import com.skillverse.academy.repository.AccountRepository;
 import com.skillverse.academy.repository.EventRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 public class DataInitializer {
+
+    private static final String DEFAULT_ADMIN_EMAIL = "vijayyy@gmail.com";
+    private static final String DEFAULT_ADMIN_PASSWORD = "131605";
+
+    @Bean
+    CommandLineRunner seedAdminAccount(AccountRepository accountRepository, PasswordEncoder passwordEncoder) {
+        return args -> {
+            if (accountRepository.existsByEmailIgnoreCase(DEFAULT_ADMIN_EMAIL)) {
+                return;
+            }
+
+            Account admin = new Account();
+            admin.setEmail(DEFAULT_ADMIN_EMAIL);
+            admin.setPasswordHash(passwordEncoder.encode(DEFAULT_ADMIN_PASSWORD));
+            admin.setRole(AccountRole.ADMIN);
+            admin.setActive(true);
+            accountRepository.save(admin);
+        };
+    }
 
     @Bean
     CommandLineRunner seedEvents(EventRepository eventRepository) {

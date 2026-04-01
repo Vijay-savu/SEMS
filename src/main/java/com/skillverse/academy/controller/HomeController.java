@@ -3,14 +3,16 @@ package com.skillverse.academy.controller;
 import com.skillverse.academy.dto.ParticipantLoginForm;
 import com.skillverse.academy.dto.ParticipantRegisterForm;
 import com.skillverse.academy.dto.RegistrationForm;
+import com.skillverse.academy.model.Account;
 import com.skillverse.academy.model.Event;
 import com.skillverse.academy.model.EventCategory;
 import com.skillverse.academy.model.EventType;
 import com.skillverse.academy.model.ParticipantType;
+import com.skillverse.academy.service.AccountService;
 import com.skillverse.academy.service.EventService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import java.nio.charset.StandardCharsets;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -28,12 +30,12 @@ public class HomeController {
 
     private static final String PARTICIPANT_EMAIL_SESSION_KEY = "participantEmail";
     private static final String PARTICIPANT_TYPE_SESSION_KEY = "participantType";
-    private static final String REGISTERED_PARTICIPANT_EMAIL_PREFIX = "registeredParticipantEmail:";
-    private static final String REGISTERED_PARTICIPANT_PASSWORD_PREFIX = "registeredParticipantPassword:";
 
+    private final AccountService accountService;
     private final EventService eventService;
 
-    public HomeController(EventService eventService) {
+    public HomeController(AccountService accountService, EventService eventService) {
+        this.accountService = accountService;
         this.eventService = eventService;
     }
 
@@ -115,7 +117,6 @@ public class HomeController {
             @Valid @ModelAttribute("participantRegisterForm") ParticipantRegisterForm participantRegisterForm,
             BindingResult bindingResult,
             Model model,
-            HttpSession session,
             RedirectAttributes redirectAttributes
     ) {
         validateParticipantRegisterForm(participantRegisterForm, bindingResult);
@@ -125,8 +126,22 @@ public class HomeController {
             return "participant-register";
         }
 
-        session.setAttribute(registeredEmailKey(participantRegisterForm.getParticipantType()), participantRegisterForm.getEmail());
-        session.setAttribute(registeredPasswordKey(participantRegisterForm.getParticipantType()), participantRegisterForm.getPassword());
+        try {
+            accountService.registerParticipant(participantRegisterForm);
+        } catch (IllegalArgumentException ex) {
+            bindingResult.addError(new FieldError(
+                    "participantRegisterForm",
+                    "email",
+                    participantRegisterForm.getEmail(),
+                    false,
+                    null,
+                    null,
+                    ex.getMessage()
+            ));
+            model.addAttribute("currentParticipantType", participantRegisterForm.getParticipantType());
+            return "participant-register";
+        }
+
         redirectAttributes.addFlashAttribute("participantRegisterSuccess", "Registration completed. Please login to continue.");
         return "redirect:/participant-login?participantType=" + participantRegisterForm.getParticipantType().name();
     }
@@ -139,10 +154,6 @@ public class HomeController {
     ) {
         if (isParticipantLoggedIn(session, participantType)) {
             return portalRedirect(participantType);
-        }
-
-        if (!isParticipantRegistered(session, participantType)) {
-            return registerRedirect(participantType);
         }
 
         ParticipantLoginForm loginForm = new ParticipantLoginForm();
@@ -171,21 +182,15 @@ public class HomeController {
             return "participant-login";
         }
 
-        if (!isParticipantRegistered(session, participantLoginForm.getParticipantType())) {
-            return registerRedirect(participantLoginForm.getParticipantType());
-        }
-
-        String registeredEmail = registeredEmailFor(session, participantLoginForm.getParticipantType());
-        String registeredPassword = registeredPasswordFor(session, participantLoginForm.getParticipantType());
-        if (!participantLoginForm.getEmail().equalsIgnoreCase(registeredEmail)
-                || !participantLoginForm.getPassword().equals(registeredPassword)) {
+        try {
+            Account account = accountService.authenticateParticipant(participantLoginForm);
+            session.setAttribute(PARTICIPANT_EMAIL_SESSION_KEY, account.getEmail());
+            session.setAttribute(PARTICIPANT_TYPE_SESSION_KEY, account.getParticipantType().name());
+        } catch (IllegalArgumentException ex) {
             bindingResult.reject("invalidLogin", "Invalid email or password.");
             model.addAttribute("currentParticipantType", participantLoginForm.getParticipantType());
             return "participant-login";
         }
-
-        session.setAttribute(PARTICIPANT_EMAIL_SESSION_KEY, participantLoginForm.getEmail());
-        session.setAttribute(PARTICIPANT_TYPE_SESSION_KEY, participantLoginForm.getParticipantType().name());
         return portalRedirect(participantLoginForm.getParticipantType());
     }
 
@@ -242,10 +247,20 @@ public class HomeController {
     }
 
     @GetMapping("/my-registrations")
-    public String myRegistrations(@RequestParam(required = false) String email, Model model) {
-        model.addAttribute("lookupEmail", email == null ? "" : email);
-        if (email != null && !email.isBlank()) {
-            model.addAttribute("registrations", eventService.getRegistrationsForEmail(email));
+    public String myRegistrations(
+            @RequestParam(required = false) String email,
+            Model model,
+            HttpSession session
+    ) {
+        String effectiveEmail = email;
+        Object sessionEmail = session.getAttribute(PARTICIPANT_EMAIL_SESSION_KEY);
+        if ((effectiveEmail == null || effectiveEmail.isBlank()) && sessionEmail instanceof String) {
+            effectiveEmail = (String) sessionEmail;
+        }
+
+        model.addAttribute("lookupEmail", effectiveEmail == null ? "" : effectiveEmail);
+        if (effectiveEmail != null && !effectiveEmail.isBlank()) {
+            model.addAttribute("registrations", eventService.getRegistrationsForEmail(effectiveEmail));
         }
         return "my-registrations";
     }
@@ -284,35 +299,8 @@ public class HomeController {
         return (String) session.getAttribute(PARTICIPANT_EMAIL_SESSION_KEY);
     }
 
-    private boolean isParticipantRegistered(HttpSession session, ParticipantType participantType) {
-        return registeredEmailFor(session, participantType) != null
-                && registeredPasswordFor(session, participantType) != null;
-    }
-
-    private String registeredEmailFor(HttpSession session, ParticipantType participantType) {
-        Object value = session.getAttribute(registeredEmailKey(participantType));
-        return value instanceof String && !((String) value).isBlank() ? (String) value : null;
-    }
-
-    private String registeredPasswordFor(HttpSession session, ParticipantType participantType) {
-        Object value = session.getAttribute(registeredPasswordKey(participantType));
-        return value instanceof String && !((String) value).isBlank() ? (String) value : null;
-    }
-
-    private String registeredEmailKey(ParticipantType participantType) {
-        return REGISTERED_PARTICIPANT_EMAIL_PREFIX + participantType.name();
-    }
-
-    private String registeredPasswordKey(ParticipantType participantType) {
-        return REGISTERED_PARTICIPANT_PASSWORD_PREFIX + participantType.name();
-    }
-
     private String loginRedirect(ParticipantType participantType) {
         return "redirect:/participant-login?participantType=" + participantType.name();
-    }
-
-    private String registerRedirect(ParticipantType participantType) {
-        return "redirect:/participant-register?participantType=" + participantType.name();
     }
 
     private String portalRedirect(ParticipantType participantType) {
