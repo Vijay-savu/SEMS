@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Smart Campus Events</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="auth-body">
+<header class="site-header auth-header">
+    <div class="brand-mark">
+        <div class="brand-badge">SC</div>
+        <div class="brand-copy">
+            <strong>SmartCampus Events</strong>
+        </div>
+    </div>
+</header>
+
+<main class="shell shell-auth">
+    <section class="auth-showcase">
+        <div class="eyebrow">College Event Portal</div>
+        <h1>Login to explore department events, club activities, and tech fest highlights.</h1>
+        <p class="subtext">
+            This portal now starts with a proper sign-in page and then takes students into a college-style event
+            website with grouped sections and detailed event pages.
+        </p>
+
+        <div class="credential-grid">
+            <article class="credential-card">
+                <span class="muted">Student login</span>
+                <strong>student / student123</strong>
+            </article>
+            <article class="credential-card">
+                <span class="muted">Admin login</span>
+                <strong>admin / admin123</strong>
+            </article>
+            <article class="credential-card">
+                <span class="muted">Current focus</span>
+                <strong>Login first, portal next</strong>
+            </article>
+        </div>
+    </section>
+
+    <section class="auth-card">
+        <div class="eyebrow">Sign In</div>
+        <h2>Access campus events</h2>
+        <p class="subtext">Use your demo account to continue into the student or admin area.</p>
+
+        <div class="alert" th:if="${param.logout}">You have been logged out.</div>
+        <div class="error-box" th:if="${param.error}">Invalid username or password. Please try again.</div>
+
+        <form th:action="@{/login}" method="post" class="auth-form">
+            <div>
+                <label for="username">Username</label>
+                <input id="username" name="username" type="text" placeholder="Enter username" autofocus>
+            </div>
+            <div>
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" placeholder="Enter password">
+            </div>
+            <button class="btn btn-gradient auth-submit" type="submit">Login</button>
+        </form>
+    </section>
+</main>
+</body>
+</html>

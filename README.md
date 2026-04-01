@@ -1,47 +1,47 @@
-# SkillVerse Academy Marketplace
+# Smart Campus Event Management System
 
-A high-performance, full-stack Skill Learning Academy Marketplace built with **Node.js, Express.js, and Vanilla JS**. Designed with a premium glassmorphism aesthetic and a localized curriculum for the Indian market.
+A syllabus-aligned full stack application for managing campus workshops, seminars, hackathons, and ticket bookings. The project demonstrates Spring Boot, Spring MVC, Spring Data JPA, validation, security, REST APIs, and a polished student/admin UI.
 
-## 🚀 Features
+## What It Covers
 
-- **Role-Based Authentication**: Dedicated dashboards for **Students, Instructors, and Admins**.
-- **User Registration**: New users can create accounts with specific roles.
-- **My Learning Journey**: Track course progress with real-time progress bars.
-- **Automated Certification**: Personalized certificates generated upon 100% course completion.
-- **Instructor Command Center**: Manage courses, toggle status (Start/End), and view student enrollment lists.
-- **Admin Dashboard**: Comprehensive course management (Create/Delete) and platform monitoring.
-- **Glassmorphism UI**: Stunning modern design with support for **Dark & Light Modes**.
-- **Responsive Design**: Fully optimized for mobile and desktop displays.
+- Student-facing event discovery and registration
+- Admin CRUD for events
+- Ticket availability tracking
+- Booking history lookup by email
+- REST API for upcoming events and dashboard stats
+- JPA entity mapping and repository-driven persistence
+- Form validation, exception handling, and Spring Security
 
-## 🛠️ Technology Stack
+## Tech Stack
 
-- **Frontend**: HTML5, CSS3 (Modern Flexbox/Grid), Vanilla JavaScript.
-- **Backend**: Node.js & Express.js.
-- **Database**: Stateful Mock Database (In-memory storage for high-speed simulation).
-- **Communication**: RESTful API endpoints with JSON serialization.
+- Spring Boot
+- Spring MVC + Thymeleaf
+- Spring Data JPA
+- Spring Security
+- H2 database for local demo
+- MySQL runtime driver included for later upgrade
+- HTML5, CSS3, responsive UI
 
-## 📦 Local Setup
+## Demo Credentials
 
-1. **Install Dependencies**:
-   ```bash
-   npm install express cors body-parser
-   ```
+- Admin username: `admin`
+- Admin password: `admin123`
+- Student username: `student`
+- Student password: `student123`
 
-2. **Run the Server**:
-   ```bash
-   node server.js
-   ```
+## Run Locally
 
-3. **Access the App**:
-   Open [http://localhost:3000](http://localhost:3000)
+```bash
+mvn spring-boot:run
+```
 
-## 📁 Project Structure
+Open `http://localhost:3000`
 
-- `server.js`: The central Express backend with mock data and API endpoints.
-- `public/`: Frontend assets.
-  - `index.html`: Main entry and dashboard layouts.
-  - `index.css`: Glassmorphism design system.
-  - `script.js`: Client-side logic and API integration.
+## Key Routes
 
----
-Built with ❤️ for FSAD Milestone Project.
+- `/` public event board
+- `/events/{id}` event details and booking
+- `/my-registrations` registration lookup
+- `/admin` admin dashboard
+- `/api/events` public REST API
+- `/api/admin/stats` admin stats API

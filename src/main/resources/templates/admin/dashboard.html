@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Smart Campus</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div class="shell">
+    <header class="topbar">
+        <div class="brand">Smart<span>Campus</span> Admin</div>
+        <div class="nav-links">
+            <a class="pill" th:href="@{/portal}">Student Portal</a>
+            <a class="btn btn-primary" th:href="@{/admin/events/new}">Create Event</a>
+            <form th:action="@{/logout}" method="post">
+                <button class="btn btn-secondary" type="submit">Logout</button>
+            </form>
+        </div>
+    </header>
+
+    <section class="panel">
+        <div class="section-head">
+            <div>
+                <div class="eyebrow">Operations Dashboard</div>
+                <h1 style="font-size: 2.5rem; margin-top: 10px;">Manage events, registrations, and published listings</h1>
+                <p class="subtext">This admin area now supports section-based events for departments, clubs, and tech fest listings.</p>
+            </div>
+        </div>
+
+        <div class="alert" th:if="${successMessage}" th:text="${successMessage}">Saved.</div>
+
+        <div class="stats-grid">
+            <div class="stat">
+                <div class="muted">Total events</div>
+                <strong th:text="${stats.totalEvents()}">0</strong>
+            </div>
+            <div class="stat">
+                <div class="muted">Published events</div>
+                <strong th:text="${stats.publishedEvents()}">0</strong>
+            </div>
+            <div class="stat">
+                <div class="muted">Registrations</div>
+                <strong th:text="${stats.totalRegistrations()}">0</strong>
+            </div>
+            <div class="stat">
+                <div class="muted">Booked seats</div>
+                <strong th:text="${stats.totalBookedSeats()}">0</strong>
+            </div>
+        </div>
+
+        <div class="mini-stat" style="margin-top: 18px;">
+            <div class="muted">Active host units represented</div>
+            <strong th:text="${departmentCount}">0</strong>
+        </div>
+    </section>
+
+    <section class="table-card" style="margin-top: 24px;">
+        <div class="section-head">
+            <div>
+                <h2>Event Control Center</h2>
+                <p class="subtext">Edit events, review availability, and inspect registrations.</p>
+            </div>
+        </div>
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Event</th>
+                <th>Section</th>
+                <th>Schedule</th>
+                <th>Host Unit</th>
+                <th>Seats</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="event : ${events}">
+                <td>
+                    <strong th:text="${event.name}">Event</strong><br>
+                    <span class="muted" th:text="${event.type}">Type</span>
+                </td>
+                <td th:text="${event.category.displayName}">Section</td>
+                <td th:text="${#temporals.format(event.eventDateTime, 'dd MMM yyyy, hh:mm a')}">Date</td>
+                <td th:text="${event.department}">Host</td>
+                <td th:text="${event.availableSeats} + ' / ' + ${event.capacity}">Seats</td>
+                <td>
+                    <span class="tag" th:if="${event.published}">Published</span>
+                    <span class="tag warm" th:unless="${event.published}">Draft</span>
+                </td>
+                <td>
+                    <div class="actions">
+                        <a class="btn btn-secondary" th:href="@{|/admin/events/${event.id}/edit|}">Edit</a>
+                        <a class="btn btn-secondary" th:href="@{|/admin/events/${event.id}/registrations|}">Registrations</a>
+                        <form th:action="@{|/admin/events/${event.id}/delete|}" method="post">
+                            <button class="btn btn-danger" type="submit">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</div>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Registrations | Smart Campus</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="portal-body">
+<header class="site-header">
+    <div class="shell shell-header">
+        <div class="brand-mark">
+            <div class="brand-badge">SC</div>
+            <div class="brand-copy">
+                <strong>SmartCampus Events</strong>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <nav class="nav-switch">
+                <a class="nav-tab" th:href="@{/portal}">All Events</a>
+                <a class="nav-tab active" th:href="@{/my-registrations}">My Registrations</a>
+            </nav>
+            <form th:action="@{/logout}" method="post">
+                <button class="btn btn-ghost" type="submit">Logout</button>
+            </form>
+        </div>
+    </div>
+</header>
+
+<main class="shell portal-shell">
+    <section class="dashboard-head dashboard-head-compact">
+        <div>
+            <h1>My Registrations</h1>
+            <p class="subtext">Use the email you entered during booking to see all campus event confirmations.</p>
+        </div>
+    </section>
+
+    <section class="filter-card registrations-search">
+        <div class="alert" th:if="${successMessage}" th:text="${successMessage}">Registration completed successfully.</div>
+
+        <form class="lookup-form lookup-inline" method="get" th:action="@{/my-registrations}">
+            <input type="email" name="email" placeholder="student@example.edu" th:value="${lookupEmail}">
+            <button class="btn btn-gradient" type="submit">Fetch Registrations</button>
+        </form>
+    </section>
+
+    <section class="event-grid" style="margin-top: 28px;" th:if="${registrations != null}">
+        <div class="empty dark-empty" th:if="${#lists.isEmpty(registrations)}">No registrations were found for this email address.</div>
+
+        <article class="event-card" th:each="registration : ${registrations}">
+            <div class="event-chip-row">
+                <span class="event-chip" th:text="${registration.event.type}">WORKSHOP</span>
+                <span class="event-chip event-chip-soft" th:text="${registration.event.category.displayName}">Section</span>
+            </div>
+
+            <div class="event-main">
+                <h3 th:text="${registration.event.name}">Event</h3>
+                <div class="event-meta">
+                    <span th:text="${#temporals.format(registration.registeredAt, 'dd MMM yyyy, hh:mm a')}">Time</span>
+                    <span th:text="${registration.event.venue}">Venue</span>
+                </div>
+                <div class="event-host" th:text="${registration.event.department}">Host</div>
+                <p class="subtext" th:text="${registration.event.description}">Description</p>
+            </div>
+
+            <div class="registration-footer">
+                <div class="capacity-pill" th:text="'Tickets: ' + ${registration.ticketsBooked}">Tickets: 1</div>
+                <a class="btn btn-secondary" th:href="@{|/events/${registration.event.id}|}">Open Event</a>
+            </div>
+        </article>
+    </section>
+</main>
+</body>
+</html>
