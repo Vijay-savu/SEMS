@@ -10,4 +10,6 @@ public interface EventRepository extends MongoRepository<Event, String> {
     List<Event> findByPublishedTrueAndEventDateTimeAfterOrderByEventDateTimeAsc(LocalDateTime now);
 
     long countByPublishedTrue();
+
+    boolean existsByNameIgnoreCase(String name);
 }

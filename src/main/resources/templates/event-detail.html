@@ -21,7 +21,7 @@
             <a class="ghost-link" th:href="@{/my-registrations}">My Registrations</a>
             <span class="ghost-link" th:if="${participantLoggedIn}" th:text="${participantSessionEmail}">participant@example.com</span>
             <a class="ghost-link" th:if="${participantLoggedIn}" th:href="@{/participant-logout}">Logout</a>
-            <a class="btn btn-soft" th:href="@{/login}">Admin Login</a>
+            <a class="btn btn-soft" th:if="${!participantLoggedIn}" th:href="@{/login}">Admin Login</a>
         </div>
     </div>
 </header>
@@ -66,6 +66,12 @@
                 <div class="eyebrow">Registration</div>
                 <h2>Register</h2>
                 <p class="subtle-text">Choose participant type and complete the form.</p>
+            </div>
+
+            <div class="alert" th:if="${successMessage}" th:text="${successMessage}">Registration completed successfully.</div>
+            <div class="quick-actions" th:if="${successMessage}">
+                <a class="btn btn-soft" th:href="@{/my-registrations}">My Registrations</a>
+                <a class="btn btn-gradient" th:href="@{/portal(participantType=${registrationForm.participantType})}">Register Another Event</a>
             </div>
 
             <form th:action="@{|/events/${event.id}/register|}" th:object="${registrationForm}" method="post" class="stack-form">

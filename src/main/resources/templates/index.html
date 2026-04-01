@@ -18,10 +18,10 @@
 
         <div class="header-actions">
             <a class="ghost-link" th:href="@{/my-registrations}">My Registrations</a>
-            <a class="ghost-link" th:href="@{/login}">Access Portal</a>
+            <a class="ghost-link" th:if="${!participantLoggedIn}" th:href="@{/login}">Access Portal</a>
             <span class="ghost-link" th:if="${participantLoggedIn}" th:text="${participantSessionEmail}">participant@example.com</span>
             <a class="ghost-link" th:if="${participantLoggedIn}" th:href="@{/participant-logout}">Logout</a>
-            <a class="btn btn-soft" th:href="@{/login}">Admin Login</a>
+            <a class="btn btn-soft" th:if="${!participantLoggedIn}" th:href="@{/login}">Admin Login</a>
         </div>
     </div>
 </header>

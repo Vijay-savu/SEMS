@@ -39,11 +39,7 @@ public class DataInitializer {
     @Bean
     CommandLineRunner seedEvents(EventRepository eventRepository) {
         return args -> {
-            if (eventRepository.count() > 0) {
-                return;
-            }
-
-            eventRepository.save(buildEvent(
+            seedEvent(eventRepository, buildEvent(
                     "AI Research Colloquium",
                     "Computer Science Department",
                     EventCategory.DEPARTMENT,
@@ -54,7 +50,7 @@ public class DataInitializer {
                     new BigDecimal("99.00"),
                     140
             ));
-            eventRepository.save(buildEvent(
+            seedEvent(eventRepository, buildEvent(
                     "Cloud Native Bootcamp",
                     "Information Technology Department",
                     EventCategory.DEPARTMENT,
@@ -65,7 +61,29 @@ public class DataInitializer {
                     new BigDecimal("149.00"),
                     90
             ));
-            eventRepository.save(buildEvent(
+            seedEvent(eventRepository, buildEvent(
+                    "Cybersecurity Awareness Session",
+                    "Electronics and Communication Department",
+                    EventCategory.DEPARTMENT,
+                    EventType.SEMINAR,
+                    "ECE Smart Classroom",
+                    "An industry-aligned session on cyber hygiene, phishing awareness, password safety, and secure digital practices for students.",
+                    LocalDateTime.now().plusDays(9).withHour(10).withMinute(30),
+                    new BigDecimal("0.00"),
+                    180
+            ));
+            seedEvent(eventRepository, buildEvent(
+                    "Data Analytics Workshop",
+                    "Mathematics Department",
+                    EventCategory.DEPARTMENT,
+                    EventType.WORKSHOP,
+                    "Analytics Lab",
+                    "A practical workshop on dashboards, Excel automation, and introductory data storytelling for campus project teams.",
+                    LocalDateTime.now().plusDays(10).withHour(13).withMinute(0),
+                    new BigDecimal("129.00"),
+                    100
+            ));
+            seedEvent(eventRepository, buildEvent(
                     "Robotics Club Demo Day",
                     "Robotics Club",
                     EventCategory.CLUB,
@@ -76,7 +94,7 @@ public class DataInitializer {
                     new BigDecimal("49.00"),
                     120
             ));
-            eventRepository.save(buildEvent(
+            seedEvent(eventRepository, buildEvent(
                     "Coding Club Problem Solving Night",
                     "Coding Club",
                     EventCategory.CLUB,
@@ -87,7 +105,29 @@ public class DataInitializer {
                     new BigDecimal("0.00"),
                     110
             ));
-            eventRepository.save(buildEvent(
+            seedEvent(eventRepository, buildEvent(
+                    "Photography Club Street Frame Walk",
+                    "Photography Club",
+                    EventCategory.CLUB,
+                    EventType.WORKSHOP,
+                    "Campus Lakefront",
+                    "A guided photo walk covering composition basics, portrait framing, and editing tips for beginner shutter enthusiasts.",
+                    LocalDateTime.now().plusDays(14).withHour(6).withMinute(30),
+                    new BigDecimal("59.00"),
+                    80
+            ));
+            seedEvent(eventRepository, buildEvent(
+                    "Literary Club Open Mic",
+                    "Literary Club",
+                    EventCategory.CLUB,
+                    EventType.CULTURAL,
+                    "Mini Auditorium",
+                    "An evening of poetry, storytelling, stand-up reading, and spoken word performances by student artists and club members.",
+                    LocalDateTime.now().plusDays(14).withHour(18).withMinute(0),
+                    new BigDecimal("29.00"),
+                    140
+            ));
+            seedEvent(eventRepository, buildEvent(
                     "TechFest Innovision Hack Arena",
                     "TechFest Core Team",
                     EventCategory.TECH_FEST,
@@ -98,7 +138,7 @@ public class DataInitializer {
                     new BigDecimal("299.00"),
                     250
             ));
-            eventRepository.save(buildEvent(
+            seedEvent(eventRepository, buildEvent(
                     "TechFest Expo and Startup Alley",
                     "TechFest Core Team",
                     EventCategory.TECH_FEST,
@@ -109,7 +149,29 @@ public class DataInitializer {
                     new BigDecimal("79.00"),
                     300
             ));
-            eventRepository.save(buildEvent(
+            seedEvent(eventRepository, buildEvent(
+                    "TechFest AI Build Sprint",
+                    "TechFest Core Team",
+                    EventCategory.TECH_FEST,
+                    EventType.WORKSHOP,
+                    "AI Experience Lab",
+                    "A hands-on build sprint featuring prompt design, model integration, and mini product demos for cross-disciplinary student teams.",
+                    LocalDateTime.now().plusDays(17).withHour(9).withMinute(30),
+                    new BigDecimal("199.00"),
+                    160
+            ));
+            seedEvent(eventRepository, buildEvent(
+                    "Web3 and Startup Futures Webinar",
+                    "TechFest Core Team",
+                    EventCategory.TECH_FEST,
+                    EventType.WEBINAR,
+                    "Virtual Event Hall",
+                    "A remote expert session discussing startup ecosystems, product building, and future-ready tech opportunities for graduates.",
+                    LocalDateTime.now().plusDays(18).withHour(19).withMinute(0),
+                    new BigDecimal("49.00"),
+                    500
+            ));
+            seedEvent(eventRepository, buildEvent(
                     "Campus Cultural Evening",
                     "Student Affairs Office",
                     EventCategory.COLLEGE,
@@ -120,7 +182,46 @@ public class DataInitializer {
                     new BigDecimal("99.00"),
                     220
             ));
+            seedEvent(eventRepository, buildEvent(
+                    "Interdepartment Sports Meet Launch",
+                    "Physical Education Department",
+                    EventCategory.COLLEGE,
+                    EventType.CULTURAL,
+                    "Central Ground",
+                    "The official opening event for the interdepartment sports calendar with march-past, team introductions, and fitness showcases.",
+                    LocalDateTime.now().plusDays(22).withHour(8).withMinute(30),
+                    new BigDecimal("0.00"),
+                    350
+            ));
+            seedEvent(eventRepository, buildEvent(
+                    "Career Readiness and Placement Talk",
+                    "Placement Cell",
+                    EventCategory.COLLEGE,
+                    EventType.SEMINAR,
+                    "Convention Hall",
+                    "A campus-wide session on resume strategy, interview preparation, aptitude planning, and internship readiness for final-year students.",
+                    LocalDateTime.now().plusDays(24).withHour(10).withMinute(0),
+                    new BigDecimal("0.00"),
+                    260
+            ));
+            seedEvent(eventRepository, buildEvent(
+                    "Green Campus Sustainability Drive",
+                    "NSS Unit",
+                    EventCategory.COLLEGE,
+                    EventType.WORKSHOP,
+                    "Eco Activity Zone",
+                    "A collaborative event with tree planting, waste segregation training, and student-led ideas for sustainable campus living.",
+                    LocalDateTime.now().plusDays(26).withHour(15).withMinute(30),
+                    new BigDecimal("19.00"),
+                    200
+            ));
         };
+    }
+
+    private void seedEvent(EventRepository eventRepository, Event event) {
+        if (!eventRepository.existsByNameIgnoreCase(event.getName())) {
+            eventRepository.save(event);
+        }
     }
 
     private Event buildEvent(

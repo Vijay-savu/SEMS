@@ -77,9 +77,10 @@ public class HomeController {
             @RequestParam(required = false) EventType type,
             @RequestParam(required = false) EventCategory category,
             @RequestParam(required = false) ParticipantType participantType,
-            Model model
+            Model model,
+            HttpSession session
     ) {
-        populatePortalModel(department, type, category, participantType, model);
+        populatePortalModel(department, type, category, participantType, model, session);
         return "index";
     }
 
@@ -89,9 +90,10 @@ public class HomeController {
             @RequestParam(required = false) EventType type,
             @RequestParam(required = false) EventCategory category,
             @RequestParam(required = false) ParticipantType participantType,
-            Model model
+            Model model,
+            HttpSession session
     ) {
-        populatePortalModel(department, type, category, participantType, model);
+        populatePortalModel(department, type, category, participantType, model, session);
         return "index";
     }
 
@@ -201,14 +203,16 @@ public class HomeController {
             Model model,
             HttpSession session
     ) {
-        if (participantType != null && !isParticipantLoggedIn(session, participantType)) {
-            return loginRedirect(participantType);
+        ParticipantType effectiveParticipantType = resolveParticipantType(participantType, session);
+
+        if (effectiveParticipantType != null && !isParticipantLoggedIn(session, effectiveParticipantType)) {
+            return loginRedirect(effectiveParticipantType);
         }
 
         Event event = eventService.getPublishedEvent(id);
         RegistrationForm registrationForm = new RegistrationForm();
-        if (participantType != null) {
-            registrationForm.setParticipantType(participantType);
+        if (effectiveParticipantType != null) {
+            registrationForm.setParticipantType(effectiveParticipantType);
         }
         String participantEmail = participantEmailFor(session, registrationForm.getParticipantType());
         if (participantEmail != null) {
@@ -242,6 +246,10 @@ public class HomeController {
 
         eventService.registerForEvent(id, registrationForm);
         redirectAttributes.addFlashAttribute("successMessage", "Registration completed successfully.");
+        if (isParticipantLoggedIn(session, registrationForm.getParticipantType())) {
+            return "redirect:/events/" + id + "?participantType=" + registrationForm.getParticipantType().name();
+        }
+
         return "redirect:/my-registrations?email="
                 + UriUtils.encode(registrationForm.getAttendeeEmail(), StandardCharsets.UTF_8);
     }
@@ -270,14 +278,33 @@ public class HomeController {
             EventType type,
             EventCategory category,
             ParticipantType participantType,
-            Model model
+            Model model,
+            HttpSession session
     ) {
+        ParticipantType effectiveParticipantType = resolveParticipantType(participantType, session);
         model.addAttribute("sections", eventService.getPortalSections(department, type, category));
         model.addAttribute("hostUnits", eventService.getHostUnits());
         model.addAttribute("selectedDepartment", department == null ? "" : department);
         model.addAttribute("selectedType", type);
         model.addAttribute("selectedCategory", category);
-        model.addAttribute("selectedParticipantType", participantType);
+        model.addAttribute("selectedParticipantType", effectiveParticipantType);
+    }
+
+    private ParticipantType resolveParticipantType(ParticipantType participantType, HttpSession session) {
+        if (participantType != null) {
+            return participantType;
+        }
+
+        Object sessionType = session.getAttribute(PARTICIPANT_TYPE_SESSION_KEY);
+        if (sessionType instanceof String value) {
+            try {
+                return ParticipantType.valueOf(value);
+            } catch (IllegalArgumentException ignored) {
+                return null;
+            }
+        }
+
+        return null;
     }
 
     private boolean isParticipantLoggedIn(HttpSession session, ParticipantType participantType) {

@@ -752,6 +752,13 @@ textarea {
     gap: 14px;
 }
 
+.quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 16px 0 22px;
+}
+
 .stats-cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -875,6 +882,10 @@ textarea {
     .admin-form-grid {
         display: grid;
         grid-template-columns: 1fr;
+    }
+
+    .quick-actions {
+        flex-direction: column;
     }
 
     .auth-box,

@@ -18,9 +18,10 @@
 
         <div class="header-actions">
             <a class="ghost-link" th:href="@{/}">All Events</a>
+            <a class="ghost-link" th:href="@{/my-registrations}">My Registrations</a>
             <span class="ghost-link" th:if="${participantLoggedIn}" th:text="${participantSessionEmail}">participant@example.com</span>
             <a class="ghost-link" th:if="${participantLoggedIn}" th:href="@{/participant-logout}">Logout</a>
-            <a class="btn btn-soft" th:href="@{/login}">Admin Login</a>
+            <a class="btn btn-soft" th:if="${!participantLoggedIn}" th:href="@{/login}">Admin Login</a>
         </div>
     </div>
 </header>
@@ -34,6 +35,10 @@
         </div>
 
         <div class="alert" th:if="${successMessage}" th:text="${successMessage}">Registration completed successfully.</div>
+        <div class="quick-actions" th:if="${participantLoggedIn}">
+            <a class="btn btn-soft" th:href="@{/my-registrations}">My Registrations</a>
+            <a class="btn btn-gradient" th:href="@{/portal(participantType=${participantSessionType})}">Browse More Events</a>
+        </div>
 
         <form class="inline-form" method="get" th:action="@{/my-registrations}">
             <input type="email" name="email" placeholder="student@example.edu" th:value="${lookupEmail}">
